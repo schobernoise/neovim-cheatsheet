@@ -6,7 +6,7 @@ var Config = (function () {
   function createInstance() {
     var object = {
       defaultFont: 'Cambria',
-      cheatsheetName: 'cheatsheet generated',
+      cheatsheetName: 'QWERTZ Cheatsheet',
       // start position for each key row
       keyrowStartPos: {
         0: [6, 3],
@@ -24,21 +24,21 @@ var Config = (function () {
       // m: motion
       // o: operator
       // x: extra
-      /*
+      
       cheatsheetColors: {
         'c': 'light blue 1',
         'm': 'light magenta 1',
         'o': 'light orange 1',
         'x': 'light gray 1',
       },
-      */
+      
       entersInsertModeColor: 'red',
-      cheatsheetColors: {
+  /*    cheatsheetColors: {
         'c': 'light yellow 1',
         'm': 'light green 1',
         'o': 'light orange 1',
         'x': 'light gray 2',
-      },
+      }, */
       qwertyKeyboard: [
         ['Esc'],
         ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
@@ -50,6 +50,17 @@ var Config = (function () {
         ['Z', 'X', 'C', 'V', 'B', 'N', 'M', '<', '>', '?'],
         ['z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/'],
       ],
+      qwertzKeyboard: [
+      ['Esc'],
+      ['°', '!', '"', '§', '$', '%', '&', '/', '(', ')', '=', '?', '`'],
+      ['^', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'ß', '´'],
+      ['Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 'Ü', '*'],
+      ['q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 'ü', '+'],
+      ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ö', 'Ä', "'"],
+      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'ö', 'ä', '#'],
+      ['Y', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_'],
+      ['y', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-'],
+        ],
       colemakKeyboard: [
         ['Esc'],
         ['~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '+'],
@@ -243,7 +254,7 @@ var Config = (function () {
 function main() {
   var config = Config.getInstance();
   var sheet = getSheet(config.cheatsheetName);
-  var keyboard = config.colemakKeyboard
+  var keyboard = config.qwertzKeyboard;
   vimkeys = getVimKeys(keyboard);
 
   for (var i = 0; i < vimkeys.length; i++) {
@@ -476,17 +487,20 @@ function getVimKeys(keyboard_keys) {
     keymapping = [];
     for (var colnum = 0; colnum < row.length; colnum++) {
       var col = row[colnum];
-      var vimkey = vimkeys[col];
+      var raw = vimkeys[col];
+
+    // German had some unusual charactes, so:
+    //  Fallback for unmapped keys (render blank label, neutral color)
+    var vimkey = raw ? Object.assign({}, raw) : { name: '', type: 'x', text: '' };
+
       vimkey.row = rownum;
       vimkey.col = colnum;
 
-      var argument = (typeof (vimkey.argument) !== 'undefined') && vimkey.argument;  // defaults to false
-      var entersInsertMode = (typeof (vimkey.entersInsertMode) !== 'undefined') && vimkey.entersInsertMode;  // defaults to false
-      var isSingleUseKey = (typeof (vimkey.isSingleUseKey) !== 'undefined') && vimkey.isSingleUseKey;  // defaults to false
-
-      vimkey.argument = argument;
-      vimkey.entersInsertMode = entersInsertMode;
-      vimkey.isSingleUseKey = isSingleUseKey;
+      
+      // normalize booleans (default false)
+      vimkey.argument = !!vimkey.argument;
+      vimkey.entersInsertMode = !!vimkey.entersInsertMode;
+      vimkey.isSingleUseKey = !!vimkey.isSingleUseKey;
 
       keymapping.push(vimkey);
     }
